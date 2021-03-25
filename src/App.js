@@ -20,11 +20,6 @@ const App = () => {
   const [progressInMS, setProgressInMS] = useState(0);
   const [noData, setNoData] = useState(false);
 
-  // getCurrentlyPlaying = getCurrentlyPlaying.bind(this);
-  // tick = tick.bind(this);
-
-
-  // componentDidMount
   useEffect(() => {
     // Set token
     let _token = hash.access_token;
@@ -34,23 +29,7 @@ const App = () => {
       setToken(_token);
       getCurrentlyPlaying(_token);
     }
-
-    // set interval for polling every 5 seconds
-    // interval = setInterval(() => tick(), 5000);
   });
-
-  // componentWillUnmount
-  // const unload = () => {
-  //   // clear the interval to save resources
-  //   clearInterval(interval);
-  // }
-
-  // const tick = () => {
-  //   if(token) {
-  //     getCurrentlyPlaying(token);
-  //   }
-  // }
-
 
   const getCurrentlyPlaying = (authToken) => {
     // Make a call using the token
