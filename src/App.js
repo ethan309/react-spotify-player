@@ -21,7 +21,7 @@ const App = () => {
   const [progressInMS, setProgressInMS] = useState(0);
   const [noData, setNoData] = useState(false);
 
-  useEffect(async () => {
+  useEffect(() => {
     let _token = localStorage.getItem('ACCESS_TOKEN');
 
     if (!_token) {
@@ -30,37 +30,26 @@ const App = () => {
       // let _code = hash.code;
       console.log(`CODE: ${_code}`);
       if (_code) {
-        await axios.post(
-          'https://accounts.spotify.com/api/token',
-          {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            data: {
-              grant_type: 'authorization_code',
-              code: _code,
-              redirect_uri: redirectUri,
-              client_id: clientId,
-              client_secret: clientSecret,
-            }
+        $.ajax({
+          url: `https://accounts.spotify.com/api/token?grant_type=authorization_code&code=${_code}&redirect_uri=${redirectUri}`,
+          type: 'POST',
+          beforeSend: xhr => {
+            xhr.setRequestHeader('Authorization', 'Basic ' + (new Buffer(clientId + ':' + clientSecret).toString('base64')));
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          },
+          success: data => {
+            localStorage.setItem('REFRESH_TOKEN', data.refresh_token);
+            localStorage.setItem('ACCESS_TOKEN', data.access_token);
+            setToken(data.access_token);
+            getCurrentlyPlaying(data.access_token);
+
           }
-        ).then((res) => {
-          console.log(res);
         });
-        // $.ajax({
-        //   url: `https://accounts.spotify.com/api/token?grant_type=authorization_code&code=${_code}&redirect_uri=${redirectUri}&client_id=${clientId}&client_secret=${clientSecret}`,
-        //   type: 'POST',
-        //   // beforeSend: xhr => {
-        //   //   xhr.setRequestHeader('Authorization', 'Basic ' + clientSecret);
-        //   // },
-        //   success: data => {
-        //     console.log(data);
-        //     // setToken(_token);
-        //     // getCurrentlyPlaying(_token);
-        //   }
-        // });
       }
-    } 
+    } else {
+      setToken(_token);
+      getCurrentlyPlaying(_token);
+    }
     
     // if (_token) {
     //   // Set token
