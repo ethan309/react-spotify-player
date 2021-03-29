@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import * as $ from 'jquery';
-import { authEndpoint, clientId, redirectUri, scopes } from './config';
+import { authEndpoint, clientId, clientSecret, redirectUri, scopes } from './config';
 import hash from './hash';
 import Player from './Player';
 import logo from './logo.svg';
 import './App.css';
+import axios from 'axios';
 
 const App = () => {
   const [token, setToken] = useState(null);
@@ -20,15 +21,52 @@ const App = () => {
   const [progressInMS, setProgressInMS] = useState(0);
   const [noData, setNoData] = useState(false);
 
-  useEffect(() => {
-    // Set token
-    let _token = hash.access_token;
+  useEffect(async () => {
+    let _token = localStorage.getItem('ACCESS_TOKEN');
 
-    if (_token) {
-      // Set token
-      setToken(_token);
-      getCurrentlyPlaying(_token);
-    }
+    if (!_token) {
+      const params = (new URL(document.location)).searchParams;
+      let _code = params.get('code');
+      // let _code = hash.code;
+      console.log(`CODE: ${_code}`);
+      if (_code) {
+        await axios.post(
+          'https://accounts.spotify.com/api/token',
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            data: {
+              grant_type: 'authorization_code',
+              code: _code,
+              redirect_uri: redirectUri,
+              client_id: clientId,
+              client_secret: clientSecret,
+            }
+          }
+        ).then((res) => {
+          console.log(res);
+        });
+        // $.ajax({
+        //   url: `https://accounts.spotify.com/api/token?grant_type=authorization_code&code=${_code}&redirect_uri=${redirectUri}&client_id=${clientId}&client_secret=${clientSecret}`,
+        //   type: 'POST',
+        //   // beforeSend: xhr => {
+        //   //   xhr.setRequestHeader('Authorization', 'Basic ' + clientSecret);
+        //   // },
+        //   success: data => {
+        //     console.log(data);
+        //     // setToken(_token);
+        //     // getCurrentlyPlaying(_token);
+        //   }
+        // });
+      }
+    } 
+    
+    // if (_token) {
+    //   // Set token
+    //   setToken(_token);
+    //   getCurrentlyPlaying(_token);
+    // }
   });
 
   const getCurrentlyPlaying = (authToken) => {
@@ -63,7 +101,7 @@ const App = () => {
             className='btn btn--loginApp-link'
             href={`${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join(
               '%20'
-            )}&response_type=token&show_dialog=true`}
+            )}&response_type=code&show_dialog=true`}
           >
             Login to Spotify
           </a>
