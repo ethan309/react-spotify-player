@@ -28,7 +28,11 @@ const App = () => {
             setToken(data.access_token);
             getUserPlaylists(_token);
 
-          }
+          },
+          error: (xhr) => {
+            console.log(`${xhr.status}: ${xhr.statusText}`);
+            setToken(null);
+          },
         });
       }
     } else {
@@ -50,7 +54,11 @@ const App = () => {
       success: data => {
         console.log(data.items);
         setPlaylists(data.items);
-      }
+      },
+      error: (xhr) => {
+        console.log(`${xhr.status}: ${xhr.statusText}`);
+        setPlaylists([]);
+      },
     });
   }
 
