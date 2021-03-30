@@ -1,25 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import * as $ from 'jquery';
 import { authEndpoint, clientId, clientSecret, redirectUri, scopes } from './config';
-import hash from './hash';
-import Player from './Player';
 import logo from './logo.svg';
 import './App.css';
-import axios from 'axios';
 
 const App = () => {
   const [token, setToken] = useState(null);
-  const [item, setItem] = useState({
-    album: {
-      images: [{ url: '' }]
-    },
-    name: '',
-    artists: [{ name: '' }],
-    duration_ms: 0
-  });
-  const [isPlaying, setIsPlaying] = useState('Paused');
-  const [progressInMS, setProgressInMS] = useState(0);
-  const [noData, setNoData] = useState(false);
+  const [playlists, setPlaylists] = useState([]);
 
   useEffect(() => {
     let _token = localStorage.getItem('ACCESS_TOKEN');
@@ -27,8 +14,6 @@ const App = () => {
     if (!_token) {
       const params = (new URL(document.location)).searchParams;
       let _code = params.get('code');
-      // let _code = hash.code;
-      console.log(`CODE: ${_code}`);
       if (_code) {
         $.ajax({
           url: `https://accounts.spotify.com/api/token?grant_type=authorization_code&code=${_code}&redirect_uri=${redirectUri}`,
@@ -41,42 +26,30 @@ const App = () => {
             localStorage.setItem('REFRESH_TOKEN', data.refresh_token);
             localStorage.setItem('ACCESS_TOKEN', data.access_token);
             setToken(data.access_token);
-            getCurrentlyPlaying(data.access_token);
+            getUserPlaylists(_token);
 
           }
         });
       }
     } else {
       setToken(_token);
-      getCurrentlyPlaying(_token);
+      getUserPlaylists(_token);
     }
-    
-    // if (_token) {
-    //   // Set token
-    //   setToken(_token);
-    //   getCurrentlyPlaying(_token);
-    // }
-  });
+  },
+  []
+  );
 
-  const getCurrentlyPlaying = (authToken) => {
+  const getUserPlaylists = (authToken) => {
     // Make a call using the token
     $.ajax({
-      url: 'https://api.spotify.com/v1/me/player',
+      url: `https://api.spotify.com/v1/me/playlists`,
       type: 'GET',
       beforeSend: xhr => {
         xhr.setRequestHeader('Authorization', 'Bearer ' + authToken);
       },
       success: data => {
-        // Checks if the data is not empty
-        if(!data) {
-          setNoData(true);
-          return;
-        }
-
-        setItem(data.item);
-        setIsPlaying(data.is_playing);
-        setProgressInMS(data.progress_ms);
-        setNoData(false); // We need to 'reset' the boolean, in case the user does not give F5 and has opened his Spotify.
+        console.log(data.items);
+        setPlaylists(data.items);
       }
     });
   }
@@ -95,17 +68,14 @@ const App = () => {
             Login to Spotify
           </a>
         )}
-        {token && !noData && (
-          <Player
-            item={item}
-            isPlaying={isPlaying}
-            progressInMS={progressInMS}
-          />
-        )}
-        {noData && (
-          <p>
-            You need to be playing a song on Spotify, for something to appear here.
-          </p>
+        {token && (
+          playlists.map((playlist) => (
+            <div key={playlist.id}>
+              <h2>{playlist.name}</h2>
+              <p>{playlist.external_urls.spotify}</p>
+              <p>{playlist.tracks.total}</p>
+            </div>
+          ))
         )}
       </header>
     </div>
