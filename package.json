@@ -6,11 +6,16 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "axios": "0.21.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
     "jquery": "^3.4.1",
+    "query-string": "^7.1.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-scripts": "2.1.8",
-    "axios": "0.21.1"
+    "sjcl": "^1.0.8",
+    "spotify-web-api-node": "^5.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
