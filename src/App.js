@@ -10,32 +10,32 @@ const App = () => {
   const [token, setToken] = useState(null);
   const [playlists, setPlaylists] = useState([]);
 
-  useEffect(() => {
-      const params = (new URL(document.location)).searchParams;
-      const _code = params.get('code');
-      const rState = generateCode(16);
-      const rCode = generateCode(127);
-      const challengeCodeBitArray = sjcl.hash.sha256.hash(rCode);
-      console.log('Random code: ', rCode);
-      const challengeCode = (new Buffer(sjcl.codec.hex.fromBits(challengeCodeBitArray)).toString('base64'));
-      if (_code) {
-        $.ajax({
-          url: `https://accounts.spotify.com/api/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&code_challenge_method=S256&state=${rState}&code_challenge=${challengeCode}`,
-          type: 'POST',
-          beforeSend: (xhr) => {
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-          },
-          success: (data) => {
-            console.log('-- RES', data);
-          },
-          error: (xhr) => {
-            console.log(`-- ${xhr.status}: ${xhr.statusText}`);
-          },
-        });
-      }
-    },
-  []
-  );
+  // useEffect(() => {
+  //     const params = (new URL(document.location)).searchParams;
+  //     const _code = params.get('code');
+  //     const rState = generateCode(16);
+  //     const rCode = generateCode(127);
+  //     const challengeCodeBitArray = sjcl.hash.sha256.hash(rCode);
+  //     console.log('Random code: ', rCode);
+  //     const challengeCode = (new Buffer(sjcl.codec.hex.fromBits(challengeCodeBitArray)).toString('base64'));
+  //     if (_code) {
+  //       $.ajax({
+  //         url: `https://accounts.spotify.com/api/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&code_challenge_method=S256&state=${rState}&code_challenge=${challengeCode}`,
+  //         type: 'POST',
+  //         beforeSend: (xhr) => {
+  //           xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  //         },
+  //         success: (data) => {
+  //           console.log('-- RES', data);
+  //         },
+  //         error: (xhr) => {
+  //           console.log(`-- ${xhr.status}: ${xhr.statusText}`);
+  //         },
+  //       });
+  //     }
+  //   },
+  // []
+  // );
 
   // useEffect(() => {
   //   let _token = localStorage.getItem('ACCESS_TOKEN');

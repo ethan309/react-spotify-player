@@ -10,11 +10,13 @@
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "jquery": "^3.4.1",
+    "node-fetch": "^2.6.7",
     "query-string": "^7.1.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-scripts": "2.1.8",
     "sjcl": "^1.0.8",
+    "spotify-web-api-js": "^1.5.2",
     "spotify-web-api-node": "^5.0.2"
   },
   "scripts": {

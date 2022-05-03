@@ -1,47 +1,63 @@
-import { clientId, clientSecret } from './config'
+const fetch = require("node-fetch");
+const SpotifyWebApi = require("./spotify-web-api");
 
-const express = require('express')
-const cors = require('cors')
-const spotifyWebApi = require('spotify-web-api-node')
+const clientId = "0fb731893a9249c1adec90077bfc4c91";
+const clientSecret = "deaebcef359b413d85ca362d1d558ae3";
+const redirectUri = "http://localhost:3000/callback";
+// const getSpotifyToken = () => {
+//   let _token = localStorage.getItem('ACCESS_TOKEN');
 
-const app = express()
-const port = 8000
+//   if (!_token) {
+//     const params = (new URL(document.location)).searchParams;
+//     let _code = params.get('code');
+//     if (_code) {
+//       $.ajax({
+//         url: `https://accounts.spotify.com/api/token?grant_type=authorization_code&code=${_code}&redirect_uri=${redirectUri}`,
+//         type: 'POST',
+//         beforeSend: xhr => {
+//           xhr.setRequestHeader('Authorization', 'Basic ' + (new Buffer(clientId + ':' + clientSecret).toString('base64')));
+//           xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+//         },
+//         success: data => {
+//           localStorage.setItem('REFRESH_TOKEN', data.refresh_token);
+//           localStorage.setItem('ACCESS_TOKEN', data.access_token);
+//           return data.access_token;
+//         }
+//       });
+//     }
+//   } else {
+//     return _token;
+//   }
+// };
 
-app.use(cors()) // To handle cross-origin requests
-app.use(express.json()); // To parse JSON bodies
+const getSpotifyAuthCode = async() => {
+  // const requestOptions = {
+  //   method: 'POST',
+  // }
+  await fetch(`https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}`)
+  .then(response => console.log(response));
+}
 
-const credentials = {
-  clientId: clientId,
-  clientSecret: clientSecret,
-  redirectUri: 'http://localhost:3000/',
-};
+const getSpotifyToken = async() => {
+  const requestOptions = {
+    method: 'POST',
+    headers: {'Authorization': 'Basic ' + (new Buffer(clientId + ':' + clientSecret).toString('base64')), 'Content-Type': 'application/x-www-form-urlencoded'},
+  }
+  await fetch(`https://accounts.spotify.com/api/token?grant_type=authorization_code&code=${_code}&redirect_uri=${redirectUri}`, requestOptions)
+  .then(response => response.json());
+}
 
-app.get('/', (req, res) => {
-  console.log('Hello World!')
-})
+let spotifyApi = new SpotifyWebApi();
 
-app.post('/login', (req,res) => {
-//  setup 
-    let spotifyApi = new spotifyWebApi(credentials)
+let authCode = getSpotifyAuthCode();
 
-//  Get the "code" value posted from the client-side and get the user's accessToken from the spotify api     
-    const code = req.body.code
+console.log(authCode);
 
-    // Retrieve an access token
-    spotifyApi.authorizationCodeGrant(code).then((data) => {
+// let generatedToken = getSpotifyToken();
 
-        // Returning the User's AccessToken in the json formate  
-        res.json({
-            accessToken: data.body.access_token,
-        }) 
-    })
-    .catch((err) => {
-        console.log(err);
-        res.sendStatus(400)
-    })
+// spotifyApi.setAccessToken(generatedToken);
 
-})
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
+// spotifyApi.getArtistAlbums('43ZHCT0cAZBISjO8DG9PnE', function (err, data) {
+//   if (err) console.error(err);
+//   else console.log('Artist albums', data);
+// });
